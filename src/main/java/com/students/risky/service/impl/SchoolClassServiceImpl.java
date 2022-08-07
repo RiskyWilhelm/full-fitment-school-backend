@@ -1,5 +1,7 @@
 package com.students.risky.service.impl;
 
+import com.students.risky.advice.advices.AlreadyOccupiedException;
+import com.students.risky.advice.advices.NotFoundException;
 import com.students.risky.dto.schoolclassdtos.SchoolClassCreatorDto;
 import com.students.risky.dto.schoolclassdtos.SchoolClassDto;
 import com.students.risky.dto.studentdtos.StudentDto;
@@ -12,6 +14,8 @@ import com.students.risky.repository.StudentRepository;
 import com.students.risky.repository.TeacherRepository;
 import com.students.risky.service.SchoolClassService;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Example;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -49,9 +53,9 @@ public class SchoolClassServiceImpl implements SchoolClassService {
                         .stream().map(student -> modelMapper.map(student, StudentDto.class)).toList();*/
                 return foundStudents.stream().map(student -> modelMapper.map(student, StudentDto.class)).toList();
             }
-            throw new RuntimeException("Listede Ogrenci yok.");
+            throw new NotFoundException("Listede Öğrenci Yok.");
         }
-        throw new RuntimeException("Sinif bulunamadi");
+        throw new NotFoundException("Sınıf Bulunamadı.");
     }
 
     @Override
@@ -61,17 +65,17 @@ public class SchoolClassServiceImpl implements SchoolClassService {
             List<Student> foundStudents = foundClass.get().getStudentList();
             Optional<Student> foundStudent = studentRepository.findById(studentid);
             if (foundStudents.isEmpty()){
-                throw new RuntimeException("Listede ogrenci yok");
+                throw new NotFoundException("Listede Öğrenci Yok.");
             }
             else if(foundStudent.isPresent() && foundStudents.contains(foundStudent.get())){
                 return modelMapper.map(foundStudent, StudentDto.class);
             }
             else if(foundStudent.isPresent()){
-                throw new RuntimeException("Ogrenci '" + foundStudent.get().getCurrentClass().getClassName() + "' Sınıfında.");
+                throw new NotFoundException("Ogrenci '" + foundStudent.get().getCurrentClass().getClassName() + "' Sınıfında.");
             }
-            throw new RuntimeException("Ogrenci bulunamadi");
+            throw new NotFoundException("Öğrenci Bulunamadı.");
         }
-        throw new RuntimeException("Sinif bulunamadi");
+        throw new NotFoundException("Sınıf Bulunamadı.");
     }
 
     @Override
@@ -80,16 +84,35 @@ public class SchoolClassServiceImpl implements SchoolClassService {
         if (foundClass.isPresent()){
             return modelMapper.map(foundClass.get(), SchoolClassWithStudentListDto.class);
         }
-        throw new RuntimeException("Sinif bulunamadi");
+        throw new NotFoundException("Sınıf Bulunamadı.");
     }
 
     @Override
     public SchoolClassDto addClass(SchoolClassCreatorDto schoolClassDto) {
-        if (schoolClassDto.getResponsibleTeacher() != null && teacherRepository.findById(schoolClassDto.getResponsibleTeacher().getId()).isEmpty())
-            throw new RuntimeException("Teacher not found!");
+        if (schoolClassDto.getResponsibleTeacher() != null && teacherRepository.findById(schoolClassDto.getResponsibleTeacher()).isEmpty())
+            throw new NotFoundException("Öğretmen Bulunamadı.");
+
+//        SORUNSUZ CALISIYOR
+        /*if (schoolClassDto.getResponsibleTeacher() != null && teacherRepository.findById(schoolClassDto.getResponsibleTeacher().getId()).isEmpty())
+            throw new RuntimeException("Teacher not found!");*/
 
         SchoolClass createdClass = modelMapper.map(schoolClassDto, SchoolClass.class);
-        return modelMapper.map(schoolClassRepository.save(createdClass), SchoolClassDto.class);
+        if(schoolClassDto.getResponsibleTeacher() != null){
+            Optional<Teacher> foundTeacher = teacherRepository.findById(schoolClassDto.getResponsibleTeacher());
+            createdClass.setResponsibleTeacher(foundTeacher.get());
+        }
+
+        else createdClass.setResponsibleTeacher(null);
+
+
+        Example<SchoolClass> foundClass = Example.of(modelMapper.map(schoolClassDto, SchoolClass.class));
+        Optional<SchoolClass> searchResult = schoolClassRepository.findOne(foundClass);
+
+        if (searchResult.isEmpty())
+            return modelMapper.map(schoolClassRepository.save(createdClass), SchoolClassDto.class);
+
+        else throw new AlreadyOccupiedException("Bu isimde bir sınıf zaten var.");
+
     }
 
     @Override
@@ -111,7 +134,7 @@ public class SchoolClassServiceImpl implements SchoolClassService {
             schoolClassRepository.deleteById(id);
             return modelMapper.map(foundClass, SchoolClassWithStudentListDto.class);
         }
-        throw new RuntimeException("Sinif bulunamadi");
+        throw new NotFoundException("Sınıf Bulunamadı.");
     }
 
     @Override
@@ -119,14 +142,20 @@ public class SchoolClassServiceImpl implements SchoolClassService {
         Optional<SchoolClass> foundClass = schoolClassRepository.findById(id);
         if (foundClass.isPresent()){
             if (schoolClassCreatorDto.getClassName() != null) foundClass.get().setClassName(schoolClassCreatorDto.getClassName());
-            if (schoolClassCreatorDto.getResponsibleTeacher() != null && teacherRepository.findById(schoolClassCreatorDto.getResponsibleTeacher().getId()).isEmpty())
-                throw new RuntimeException("Ogretmen bulunamadi. Guncelleme iptal edildi.");
 
-            if (schoolClassCreatorDto.getResponsibleTeacher() != null)
-                foundClass.get().setResponsibleTeacher(modelMapper.map(schoolClassCreatorDto.getResponsibleTeacher(), Teacher.class));
+            if (schoolClassCreatorDto.getResponsibleTeacher() != null && teacherRepository.findById(schoolClassCreatorDto.getResponsibleTeacher()).isEmpty())
+                throw new NotFoundException("Öğretmen Bulunamadı. Güncelleme iptal edildi.");
+
+            if (schoolClassCreatorDto.getResponsibleTeacher() != null) {
+                Optional<Teacher> foundTeacher = teacherRepository.findById(schoolClassCreatorDto.getResponsibleTeacher());
+                foundClass.get().setResponsibleTeacher(foundTeacher.get());
+            }
+
+            else if (foundClass.get().getResponsibleTeacher() != null && schoolClassCreatorDto.getResponsibleTeacher() == null)
+                foundClass.get().setResponsibleTeacher(null);
 
             return modelMapper.map(schoolClassRepository.save(foundClass.get()), SchoolClassWithStudentListDto.class);
         }
-        throw new RuntimeException("Sinif bulunamadi");
+        throw new NotFoundException("Sınıf Bulunamadı.");
     }
 }

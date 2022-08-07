@@ -1,14 +1,13 @@
 package com.students.risky.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.AllArgsConstructor;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -16,6 +15,7 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @Table(name = "students")
+@ApiModel(value = "Student(ApiModelTest)")
 public class Student {
 
     @Id

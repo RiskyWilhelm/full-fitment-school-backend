@@ -1,6 +1,6 @@
 package com.students.risky.service.impl;
 
-import com.students.risky.dto.coursedtos.LessonCreatorDto;
+import com.students.risky.advice.advices.NotFoundException;
 import com.students.risky.dto.studentdtos.StudentCreatorDto;
 import com.students.risky.dto.studentdtos.StudentDto;
 import com.students.risky.entity.Lesson;
@@ -35,10 +35,16 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentDto addStudent(StudentCreatorDto student) {
-        if (student.getCurrentClass() != null && schoolClassRepository.findById(student.getCurrentClass().getId()).isEmpty())
-            throw new RuntimeException("Sinif bulunamadi");
+        if (student.getCurrentClass() != null && schoolClassRepository.findById(student.getCurrentClass()).isEmpty())
+            throw new NotFoundException("Sınıf Bulunamadı.");
+//        SORUNSUZ CALISIYOR
+        /*if (student.getCurrentClass() != null && schoolClassRepository.findById(student.getCurrentClass().getId()).isEmpty())
+            throw new RuntimeException("Sinif bulunamadi");*/
         Student createdStudent = modelMapper.map(student, Student.class);
-//        System.out.println(createdStudent.getId() + " " + createdStudent.getFirstName() + " " + createdStudent.getLastName() + " " + createdStudent.getCurrentClass());
+        if (student.getCurrentClass() != null) {
+            Optional<SchoolClass> foundClass = schoolClassRepository.findById(student.getCurrentClass());
+            createdStudent.setCurrentClass(foundClass.get());
+        }
         return modelMapper.map(studentRepository.save(createdStudent), StudentDto.class);
     }
 
@@ -54,7 +60,7 @@ public class StudentServiceImpl implements StudentService {
         if (foundStudent.isPresent()){
             return modelMapper.map(foundStudent.get(), StudentDto.class);
         }
-        throw new RuntimeException("Student Not Found");
+        throw new NotFoundException("Öğrenci Bulunamadı.");
     }
 
     @Override
@@ -64,7 +70,7 @@ public class StudentServiceImpl implements StudentService {
             studentRepository.deleteById(id);
             return modelMapper.map(foundStudent.get(), StudentDto.class);
         }
-        throw new RuntimeException("Student Not Found");
+        throw new NotFoundException("Öğrenci Bulunamadı.");
     }
 
     @Override
@@ -73,15 +79,24 @@ public class StudentServiceImpl implements StudentService {
         if(foundStudent.isPresent()){
             if (student.getFirstName() != null) foundStudent.get().setFirstName(student.getFirstName());
             if (student.getLastName() != null) foundStudent.get().setLastName(student.getLastName());
-            if (student.getCurrentClass() != null && schoolClassRepository.findById(student.getCurrentClass().getId()).isEmpty())
-                throw new RuntimeException("Sinif bulunamadi");
-//            student dtodaki currentclass bir schoolclassDTO nesnesi oldugu icin bunu school class yapiyoruz. cunku asil istedigi bir schoolclass ve biz onda dto verdigimizde hata veriyor.
-            if (student.getCurrentClass() != null) foundStudent.get().setCurrentClass(modelMapper.map(student.getCurrentClass(), SchoolClass.class));
+            if (student.getCurrentClass() != null && schoolClassRepository.findById(student.getCurrentClass()).isEmpty())
+                throw new NotFoundException("Sınıf Bulunamadı.");
+            if (student.getCurrentClass() != null) {
+                Optional<SchoolClass> foundClass = schoolClassRepository.findById(student.getCurrentClass());
+                foundStudent.get().setCurrentClass(foundClass.get());
+            }
+            else foundStudent.get().setCurrentClass(null);
+
+//            SORUNSUZ CALISIYOR ilk yaptigim deney
+            /*if (student.getCurrentClass() != null && schoolClassRepository.findById(student.getCurrentClass().getId()).isEmpty())
+                throw new RuntimeException("Sinif bulunamadi");*/
+//            SORUNSUZ CALISIYOR
+//            if (student.getCurrentClass() != null) foundStudent.get().setCurrentClass(modelMapper.map(student.getCurrentClass(), SchoolClass.class));
 
 
             return modelMapper.map(studentRepository.save(foundStudent.get()), StudentDto.class);
         }
-        throw new RuntimeException("Ogrenci bulunamadi. Girdiginiz verileri kontrol edin ve tekrar deneyin");
+        throw new NotFoundException("Öğrenci Bulunamadı. Girdiğiniz verileri kontrol edin ve tekrar deneyin.");
     }
 
     @Override
@@ -90,12 +105,12 @@ public class StudentServiceImpl implements StudentService {
         Optional<Lesson> foundLesson = lessonRepository.findById(lessonid);
 //        Optional<Lesson> foundLesson =
         if (foundStudent.isEmpty())
-            throw new RuntimeException("Ogrenci bulunamadi");
+            throw new NotFoundException("Öğrenci Bulunamadı.");
         else if (foundLesson.isEmpty())
-            throw new RuntimeException("Ders bulunamadi");
+            throw new NotFoundException("Ders Bulunamadı.");
 
         if (foundStudent.get().getLessonList().contains(foundLesson.get()))
-            throw new RuntimeException("Ogrenci dersi zaten alıyor");
+            throw new NotFoundException("Öğrenci bu dersi zaten alıyor.");
 
         foundStudent.get().addLesson(foundLesson.get());
 

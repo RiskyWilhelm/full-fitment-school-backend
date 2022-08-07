@@ -1,8 +1,6 @@
 package com.students.risky.entity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +22,7 @@ public class Teacher {
     @Column(name = "lastname", nullable = false, length = 100)
     private String lastName;
 
+//    DAHA YENI EKLENDI TEST ASAMASINDA
     @OneToOne(mappedBy = "responsibleTeacher")
     @JsonManagedReference
     private SchoolClass responsibleClass;

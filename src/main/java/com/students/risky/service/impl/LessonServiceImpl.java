@@ -1,5 +1,6 @@
 package com.students.risky.service.impl;
 
+import com.students.risky.advice.advices.NotFoundException;
 import com.students.risky.dto.coursedtos.LessonCreatorDto;
 import com.students.risky.dto.coursedtos.LessonDto;
 import com.students.risky.dto.coursedtos.LessonDtoWithStudentList;
@@ -42,7 +43,7 @@ public class LessonServiceImpl implements LessonService {
         if (foundLesson.isPresent()){
             return modelMapper.map(foundLesson, LessonDto.class);
         }
-        throw new RuntimeException("Ders bulunamadi");
+        throw new NotFoundException("Ders Bulunamadı.");
     }
 
     @Override
@@ -51,11 +52,11 @@ public class LessonServiceImpl implements LessonService {
         if (foundLesson.isPresent()){
             if (lessonCreatorDto.getLessonName() != null)
                 foundLesson.get().setLessonName(lessonCreatorDto.getLessonName());
-            else throw new RuntimeException("Lutfen ders ismini giriniz");
+            else throw new NotFoundException("Lütfen ders ismini giriniz.");
 
             return modelMapper.map(lessonRepository.save(foundLesson.get()), LessonDto.class);
         }
-        throw new RuntimeException("Ders bulunamadi");
+        throw new NotFoundException("Ders Bulunamadı.");
     }
 
     @Override
@@ -65,6 +66,6 @@ public class LessonServiceImpl implements LessonService {
             lessonRepository.deleteById(id);
             return modelMapper.map(foundLesson, LessonDto.class);
         }
-        throw new RuntimeException("Ders bulunamadi");
+        throw new NotFoundException("Ders bulunamadı");
     }
 }

@@ -1,6 +1,7 @@
 package com.students.risky.service.impl;
 
 
+import com.students.risky.advice.advices.NotFoundException;
 import com.students.risky.dto.teacherdtos.TeacherCreatorDto;
 import com.students.risky.dto.teacherdtos.TeacherDto;
 import com.students.risky.entity.SchoolClass;
@@ -32,17 +33,18 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public TeacherDto addTeacher(TeacherCreatorDto teacherDto) {
-        if (teacherDto.getResponsibleClass() != null && schoolClassRepository.findById(teacherDto.getResponsibleClass().getId()).isEmpty()) {
-            throw new RuntimeException("Cant find class");
+        if (teacherDto.getResponsibleClass() != null && schoolClassRepository.findById(teacherDto.getResponsibleClass()).isEmpty()) {
+            throw new NotFoundException("Sınıf Bulunamadı.");
         }
         else if (teacherDto.getResponsibleClass() == null)
         {
             Teacher createdTeacher = modelMapper.map(teacherDto, Teacher.class);
             return modelMapper.map(teacherRepository.save(createdTeacher), TeacherDto.class);
         }
-        Optional<SchoolClass> foundClass = schoolClassRepository.findById(teacherDto.getResponsibleClass().getId());
+        Optional<SchoolClass> foundClass = schoolClassRepository.findById(teacherDto.getResponsibleClass());
         Teacher createdTeacher = modelMapper.map(teacherDto, Teacher.class);
         foundClass.get().setResponsibleTeacher(createdTeacher);
+
         return modelMapper.map(teacherRepository.save(createdTeacher), TeacherDto.class);
     }
 
@@ -58,7 +60,7 @@ public class TeacherServiceImpl implements TeacherService {
         if (foundTeacher.isPresent()){
             return modelMapper.map(foundTeacher, TeacherDto.class);
         }
-        throw new RuntimeException("Ogretmen bulunamadi");
+        throw new NotFoundException("Öğretmen Bulunamadı.");
     }
 
     @Override
@@ -73,7 +75,7 @@ public class TeacherServiceImpl implements TeacherService {
             teacherRepository.deleteById(id);
             return modelMapper.map(foundTeacher, TeacherDto.class);
         }
-        throw new RuntimeException("Ogretmen silinemedi; Sebep: Ogretmen bulunamadi veya bir sorun olustu. Kontrol edip tekrar deneyin. ");
+        throw new NotFoundException("Öğretmen silinemedi; Sebep: Öğretmen bulunamadı veya bir sorun oluştu. Kontrol edip tekrar deneyin. ");
     }
 
     @Override
@@ -83,15 +85,21 @@ public class TeacherServiceImpl implements TeacherService {
         if (foundTeacher.isPresent()){
             if (teacherCreatorDto.getFirstName() != null) foundTeacher.get().setFirstName(teacherCreatorDto.getFirstName());
             if (teacherCreatorDto.getLastName() != null) foundTeacher.get().setLastName(teacherCreatorDto.getLastName());
-            if (teacherCreatorDto.getResponsibleClass() != null && schoolClassRepository.findById(teacherCreatorDto.getResponsibleClass().getId()).isEmpty())
-                throw new RuntimeException("Sinif bulunamadi");
+
+            if (teacherCreatorDto.getResponsibleClass() != null && schoolClassRepository.findById(teacherCreatorDto.getResponsibleClass()).isEmpty())
+                throw new NotFoundException("Sınıf Bulunamadı.");
+
+            if (foundTeacher.get().getResponsibleClass() != null && teacherCreatorDto.getResponsibleClass() != null)
+                schoolClassRepository.findById(foundTeacher.get().getResponsibleClass().getId()).get().setResponsibleTeacher(null);
+
             if (teacherCreatorDto.getResponsibleClass() != null)
-                schoolClassRepository.findById(teacherCreatorDto.getResponsibleClass().getId()).get().setResponsibleTeacher(foundTeacher.get());
-            else if (foundTeacher.get().getResponsibleClass() != null)
+                schoolClassRepository.findById(teacherCreatorDto.getResponsibleClass()).get().setResponsibleTeacher(foundTeacher.get());
+
+            else if (foundTeacher.get().getResponsibleClass() != null && teacherCreatorDto.getResponsibleClass() == null)
                 foundTeacher.get().getResponsibleClass().setResponsibleTeacher(null);
 
             return modelMapper.map(teacherRepository.save(foundTeacher.get()), TeacherDto.class);
         }
-        throw new RuntimeException("Ogretmen bulunumadi. Girdiginiz verileri kontrol edin ve tekrar deneyin");
+        throw new NotFoundException("Öğretmen Bulunumadı. Girdiğiniz verileri kontrol edin ve tekrar deneyin");
     }
 }
