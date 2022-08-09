@@ -17,6 +17,7 @@ Vue 3 is used for front-end. Fetch is used to call backend API data. The homepag
 
 
 ### For frontend setup
+* `https://github.com/RiskyWilhelm/full-fitment-school-frontend`
 * `src/config/URIPath.js` file in URI change
 * `npm install`
 * `npm run serve`
