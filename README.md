@@ -10,7 +10,6 @@ https://github.com/RiskyWilhelm/full-fitment-school-frontend
 
 
 ### For backend setup
-* Declare the required MongoDB URI in the `.env` file.
 * `npm install`
 * `npm run dev`
 
