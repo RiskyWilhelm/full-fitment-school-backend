@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/students")
 @Api(value = "Öğrenci API Dökümantasyonu", description = "Öğrenci ekleme çıkarma ve güncelleme gibi işlemler")
+@CrossOrigin("http://localhost:8080")
 public class StudentController {
 
     private final StudentService studentService;

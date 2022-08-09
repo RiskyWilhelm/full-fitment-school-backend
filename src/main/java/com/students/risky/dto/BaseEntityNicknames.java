@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class BaseEntityNicknames {
+public class BaseEntityNicknames extends BaseEntityDevParams {
     private String firstName;
     private String lastName;
 }

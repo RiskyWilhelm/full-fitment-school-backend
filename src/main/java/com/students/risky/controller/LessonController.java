@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/lessons")
+@CrossOrigin("http://localhost:8080")
 public class LessonController {
 
     private final LessonService lessonService;

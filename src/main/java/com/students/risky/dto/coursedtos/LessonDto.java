@@ -1,6 +1,7 @@
 package com.students.risky.dto.coursedtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.students.risky.dto.BaseEntityDevParams;
 import com.students.risky.dto.studentdtos.StudentDto;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +11,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class LessonDto {
+public class LessonDto extends BaseEntityDevParams {
     private String lessonName;
 //    @JsonIgnoreProperties("lessonList")
     private Set<StudentDto> studentsList = new HashSet<>();

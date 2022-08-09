@@ -1,6 +1,7 @@
 package com.students.risky.dto.schoolclassdtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.students.risky.dto.BaseEntityDevParams;
 import com.students.risky.dto.studentdtos.StudentDtoWithStudentListDto;
 import com.students.risky.dto.teacherdtos.TeacherWithStudentListDto;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class SchoolClassWithStudentListDto {
+public class SchoolClassWithStudentListDto extends BaseEntityDevParams {
 //    Buraya ne eklersek o postmanda gozukecek.
 //    Bu teacherwithstudentlistdto ile birlikte calisir. Eger degistirecek olursaniz mapping error 1]  verecektir. Yani veri tipi uyumsuzlugu verir.
     private String className;

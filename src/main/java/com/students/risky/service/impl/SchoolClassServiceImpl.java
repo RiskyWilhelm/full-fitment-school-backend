@@ -16,6 +16,7 @@ import com.students.risky.service.SchoolClassService;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -117,7 +118,7 @@ public class SchoolClassServiceImpl implements SchoolClassService {
 
     @Override
     public List<SchoolClassWithStudentListDto> getAllClasses() {
-        List<SchoolClass> foundClasses = schoolClassRepository.findAll();
+        List<SchoolClass> foundClasses = schoolClassRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
         return foundClasses.stream().map(schoolClass -> modelMapper.map(schoolClass, SchoolClassWithStudentListDto.class)).toList();
     }
 
