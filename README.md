@@ -12,6 +12,8 @@ https://github.com/RiskyWilhelm/full-fitment-school-frontend
 ### For backend setup
 * `just download this and run lol`
 
+## Front-end
+Vue 3 is used for front-end. Fetch is used to call backend API data.
 
 ### For frontend setup
 * `https://github.com/RiskyWilhelm/full-fitment-school-frontend`
