@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/teachers")
-@CrossOrigin("http://localhost:8080")
+@CrossOrigin("http://riskywilhelm.github.io/full-fitment-school-frontend/")
 public class TeacherController {
 
     private final TeacherService teacherService;
