@@ -16,9 +16,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>18</java.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>15</maven.compiler.source>
-		<maven.compiler.target>15</maven.compiler.target>
 	</properties>
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
