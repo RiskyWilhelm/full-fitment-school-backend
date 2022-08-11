@@ -1,5 +1,6 @@
 package com.students.risky.service;
 
+import com.students.risky.dto.coursedtos.LessonCreatorDto;
 import com.students.risky.dto.studentdtos.StudentCreatorDto;
 import com.students.risky.dto.studentdtos.StudentDto;
 import com.students.risky.entity.Lesson;
@@ -18,4 +19,6 @@ public interface StudentService {
     StudentDto updateStudentById(Long id, StudentCreatorDto student);
 
     Lesson addLesson(Long studentid, Long lessonid);
+
+    LessonCreatorDto removeLesson(Long studentid, Long lessonid);
 }

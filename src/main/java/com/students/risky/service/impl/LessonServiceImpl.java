@@ -1,13 +1,17 @@
 package com.students.risky.service.impl;
 
+import com.students.risky.advice.advices.AlreadyOccupiedException;
 import com.students.risky.advice.advices.NotFoundException;
 import com.students.risky.dto.coursedtos.LessonCreatorDto;
 import com.students.risky.dto.coursedtos.LessonDto;
 import com.students.risky.dto.coursedtos.LessonDtoWithStudentList;
+import com.students.risky.dto.schoolclassdtos.SchoolClassDto;
 import com.students.risky.entity.Lesson;
+import com.students.risky.entity.SchoolClass;
 import com.students.risky.repository.LessonRepository;
 import com.students.risky.service.LessonService;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +32,16 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public LessonCreatorDto addLesson(LessonCreatorDto lessonCreatorDto) {
         Lesson createdLesson = modelMapper.map(lessonCreatorDto, Lesson.class);
-        return modelMapper.map(lessonRepository.save(createdLesson), LessonCreatorDto.class);
+
+//        ID YUKSELMESINI ENGELLIYOR
+        Example<Lesson> foundLesson = Example.of(modelMapper.map(lessonCreatorDto, Lesson.class));
+        Optional<Lesson> searchResult = lessonRepository.findOne(foundLesson);
+
+        if (searchResult.isEmpty())
+            return modelMapper.map(lessonRepository.save(createdLesson), LessonCreatorDto.class);
+
+        else throw new AlreadyOccupiedException("Bu isimde bir ders zaten var.");
+//        return modelMapper.map(lessonRepository.save(createdLesson), LessonCreatorDto.class);
     }
 
     @Override

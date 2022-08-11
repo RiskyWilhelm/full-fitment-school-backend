@@ -13,6 +13,6 @@ import java.util.Set;
 @Setter
 public class LessonDto extends BaseEntityDevParams {
     private String lessonName;
-//    @JsonIgnoreProperties("lessonList")
+    @JsonIgnoreProperties({"lessonList"})
     private Set<StudentDto> studentsList = new HashSet<>();
 }

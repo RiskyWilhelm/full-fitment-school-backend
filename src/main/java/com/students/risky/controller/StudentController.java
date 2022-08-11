@@ -1,5 +1,7 @@
 package com.students.risky.controller;
 
+import com.students.risky.dto.coursedtos.LessonCreatorDto;
+import com.students.risky.dto.coursedtos.LessonDto;
 import com.students.risky.dto.studentdtos.StudentCreatorDto;
 import com.students.risky.dto.studentdtos.StudentDto;
 import com.students.risky.entity.Lesson;
@@ -35,6 +37,13 @@ public class StudentController {
     public ResponseEntity<Lesson> addLesson(@PathVariable Long studentid, @PathVariable Long lessonid){
         Lesson addedLesson = studentService.addLesson(studentid, lessonid);
         return ResponseEntity.ok(addedLesson);
+    }
+
+    @PutMapping("/getStudent/{studentid}/removeLesson/{lessonid}")
+    @ApiOperation(value = "Öğrencinin dersini silme kısmı")
+    public ResponseEntity<LessonCreatorDto> removeLesson(@PathVariable Long studentid, @PathVariable Long lessonid){
+        LessonCreatorDto removedLesson = studentService.removeLesson(studentid, lessonid);
+        return ResponseEntity.ok(removedLesson);
     }
 
     /*@DeleteMapping("/getStudent/{studentid}/removeLesson/{lessonid}")

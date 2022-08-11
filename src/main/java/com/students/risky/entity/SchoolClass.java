@@ -42,4 +42,8 @@ public class SchoolClass {
     public SchoolClass(Long id) {
         this.id = id;
     }
+
+    public void setStudentCountByList(Byte howMany){
+        this.studentCount = (byte) (this.studentList.size() + howMany);
+    }
 }

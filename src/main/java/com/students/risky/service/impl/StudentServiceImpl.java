@@ -1,6 +1,7 @@
 package com.students.risky.service.impl;
 
 import com.students.risky.advice.advices.NotFoundException;
+import com.students.risky.dto.coursedtos.LessonCreatorDto;
 import com.students.risky.dto.studentdtos.StudentCreatorDto;
 import com.students.risky.dto.studentdtos.StudentDto;
 import com.students.risky.entity.Lesson;
@@ -44,6 +45,9 @@ public class StudentServiceImpl implements StudentService {
         if (student.getCurrentClass() != null) {
             Optional<SchoolClass> foundClass = schoolClassRepository.findById(student.getCurrentClass());
             createdStudent.setCurrentClass(foundClass.get());
+            if (foundClass.isPresent()){
+                foundClass.get().setStudentCountByList((byte)1);
+            }
         }
         return modelMapper.map(studentRepository.save(createdStudent), StudentDto.class);
     }
@@ -67,6 +71,10 @@ public class StudentServiceImpl implements StudentService {
     public StudentDto deleteStudentById(Long id) {
         Optional<Student> foundStudent = studentRepository.findById(id);
         if (foundStudent.isPresent()){
+            if (foundStudent.get().getCurrentClass() != null){
+                foundStudent.get().getCurrentClass().setStudentCountByList((byte)-1);
+            }
+            foundStudent.get().setLessonList(null);
             studentRepository.deleteById(id);
             return modelMapper.map(foundStudent.get(), StudentDto.class);
         }
@@ -84,8 +92,19 @@ public class StudentServiceImpl implements StudentService {
             if (student.getCurrentClass() != null) {
                 Optional<SchoolClass> foundClass = schoolClassRepository.findById(student.getCurrentClass());
                 foundStudent.get().setCurrentClass(foundClass.get());
+                if (!foundClass.get().equals(modelMapper.map(foundStudent.get().getCurrentClass(), SchoolClass.class))) {
+                    foundClass.ifPresent(schoolClass -> schoolClass.setStudentCountByList((byte) 0));
+                }
+                else {
+                    foundClass.ifPresent(schoolClass -> schoolClass.setStudentCountByList((byte) 1));
+                }
             }
-            else foundStudent.get().setCurrentClass(null);
+            else{
+                if (foundStudent.get().getCurrentClass() != null){
+                    foundStudent.get().getCurrentClass().setStudentCountByList((byte)-1);
+                }
+                foundStudent.get().setCurrentClass(null);
+            }
 
 //            SORUNSUZ CALISIYOR ilk yaptigim deney
             /*if (student.getCurrentClass() != null && schoolClassRepository.findById(student.getCurrentClass().getId()).isEmpty())
@@ -116,4 +135,30 @@ public class StudentServiceImpl implements StudentService {
 
         return modelMapper.map(studentRepository.save(foundStudent.get()), Lesson.class);
     }
+
+    @Override
+    public LessonCreatorDto removeLesson(Long studentid, Long lessonid) {
+        Optional<Lesson> foundLesson = lessonRepository.findById(lessonid);
+        Optional<Student> foundStudent = studentRepository.findById(studentid);
+        if (foundStudent.isPresent()){
+            if (foundLesson.isPresent()){
+                if (foundStudent.get().getLessonList().contains(foundLesson.get())){
+                    foundStudent.get().removeLesson(foundLesson.get());
+                    studentRepository.save(foundStudent.get());
+                    return modelMapper.map(foundLesson.get(), LessonCreatorDto.class);
+                }
+                else {
+                    throw new NotFoundException("Öğrenci bu dersi zaten almıyor.");
+                }
+            }
+            else {
+                throw new NotFoundException("Ders bulunamadı.");
+            }
+        }
+
+        else {
+            throw new NotFoundException("Öğrenci bulunamadı.");
+        }
+    }
+
 }

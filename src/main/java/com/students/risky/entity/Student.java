@@ -34,7 +34,7 @@ public class Student {
     @JsonBackReference
     private SchoolClass currentClass;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+    @ManyToMany
     //Ders sınıfına ManyToMany ile bağlandı.
     @JoinTable(name= "student_lesson",
             joinColumns={@JoinColumn(name= "student_id", referencedColumnName = "student_id")},
@@ -45,4 +45,7 @@ public class Student {
         this.lessonList.add(lesson);
     }
 
+    public void removeLesson(Lesson lesson) {
+        this.lessonList.remove(lesson);
+    }
 }
