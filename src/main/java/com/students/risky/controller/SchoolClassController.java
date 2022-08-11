@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/classes")
-@CrossOrigin("https://riskywilhelm.github.io/full-fitment-school-frontend/")
+@CrossOrigin("https://riskywilhelm.github.io")
 public class SchoolClassController {
 
     private final SchoolClassService schoolClassService;

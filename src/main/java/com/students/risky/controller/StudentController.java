@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/students")
 @Api(value = "Öğrenci API Dökümantasyonu", description = "Öğrenci ekleme çıkarma ve güncelleme gibi işlemler")
-@CrossOrigin("https://riskywilhelm.github.io/full-fitment-school-frontend/")
+@CrossOrigin("https://riskywilhelm.github.io")
 public class StudentController {
 
     private final StudentService studentService;
